@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Match {
+enum Match: CaseIterable {
     case exact
     case inexact
     case nomatch
@@ -43,6 +43,38 @@ struct MatchMarkers: View {
     }
 }
 
+struct MatchMarkersPreview: View {
+    let pegs: Int
+
+    let allPossibleMatches = Match.allCases
+    let matches: [Match] =
+        ({
+            return [Match.inexact]
+        })()
+
+    var body: some View {
+        HStack {
+            ForEach(0..<pegs, id: \.self) { _ in
+                Circle().frame(width: 45, height: 90)
+            }
+            Spacer()
+            MatchMarkers(matches: [.exact, .inexact, .exact]).frame(
+                width: 45,
+                height: 45
+            )
+        }
+    }
+}
+
 #Preview {
-    MatchMarkers(matches: [.exact, .inexact, .nomatch])
+    VStack(alignment: .leading) {
+        MatchMarkersPreview(pegs: 1)
+        MatchMarkersPreview(pegs: 2)
+        MatchMarkersPreview(pegs: 3)
+        MatchMarkersPreview(pegs: 4)
+        MatchMarkersPreview(pegs: 6)
+        MatchMarkersPreview(pegs: 6)
+        MatchMarkersPreview(pegs: 5)
+        MatchMarkersPreview(pegs: 5)
+    }.padding()
 }
