@@ -17,14 +17,22 @@ struct MatchMarkers: View {
     let matches: [Match]
 
     var body: some View {
+        let halfMatchCount = Double(matches.count) / 2.0
+        let columns = Int(halfMatchCount.rounded())
+
         HStack {
-            VStack {
-                matchMarker(peg: 0)
-                matchMarker(peg: 1)
-            }
-            VStack {
-                matchMarker(peg: 2)
-                matchMarker(peg: 3)
+            ForEach(0..<columns, id: \.self) { index in
+                VStack {
+                    let _ = print(
+                        "halfMatchCount \(halfMatchCount) colums \(columns) index \(index)"
+                    )
+
+                    matchMarker(peg: index)
+
+                    if !(Int(halfMatchCount) == index) {
+                        matchMarker(peg: index)
+                    }
+                }
             }
         }
     }
@@ -45,22 +53,32 @@ struct MatchMarkers: View {
 
 struct MatchMarkersPreview: View {
     let pegs: Int
-
-    let allPossibleMatches = Match.allCases
-    let matches: [Match] =
-        ({
-            return [Match.inexact]
-        })()
+    let circleRadius = CGFloat(45)
 
     var body: some View {
         HStack {
             ForEach(0..<pegs, id: \.self) { _ in
-                Circle().frame(width: 45, height: 90)
+                Circle().frame(width: circleRadius, height: 90)
             }
+
             Spacer()
-            MatchMarkers(matches: [.exact, .inexact, .exact]).frame(
-                width: 45,
-                height: 45
+
+            let matches = {
+                let allMatches = Match.allCases
+                var matchesForPegs: [Match] = []
+
+                for _ in 0..<pegs {
+                    if let randomElement = allMatches.randomElement() {
+                        matchesForPegs.append(randomElement)
+                    }
+                }
+
+                return matchesForPegs
+            }()
+
+            MatchMarkers(matches: matches).frame(
+                width: circleRadius,
+                height: circleRadius
             )
         }
     }
