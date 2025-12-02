@@ -17,20 +17,26 @@ struct MatchMarkers: View {
     let matches: [Match]
 
     var body: some View {
+        // if not integer then it is an odd number of matches
         let halfMatchCount = Double(matches.count) / 2.0
+        // for a closest integer to halfMatchCount number of columns
         let columns = Int(halfMatchCount.rounded())
 
         HStack {
             ForEach(0..<columns, id: \.self) { index in
                 VStack {
-                    let _ = print(
-                        "halfMatchCount \(halfMatchCount) colums \(columns) index \(index)"
-                    )
-
                     matchMarker(peg: index)
 
                     if !(Int(halfMatchCount) == index) {
                         matchMarker(peg: index)
+                    } else {
+                        Circle()
+                            .fill(Color.clear)
+                            .strokeBorder(
+                                Color.clear,
+                                lineWidth: 2
+                            )
+                            .aspectRatio(1, contentMode: .fit)
                     }
                 }
             }
@@ -78,7 +84,8 @@ struct MatchMarkersPreview: View {
 
             MatchMarkers(matches: matches).frame(
                 width: circleRadius,
-                height: circleRadius
+                height: circleRadius,
+                alignment: .leading
             )
         }
     }
