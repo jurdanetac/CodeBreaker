@@ -24,7 +24,16 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
+            restartGameButton
         }.padding()
+    }
+
+    var restartGameButton: some View {
+        Button("Restart Game") {
+            withAnimation {
+                game.restartGame()
+            }
+        }
     }
 
     var guessButton: some View {

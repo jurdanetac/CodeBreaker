@@ -9,6 +9,24 @@ import SwiftUI
 
 typealias Peg = Color
 
+let availablePegs: [Color] = [
+    .red,
+    .orange,
+    .yellow,
+    .green,
+    .mint,
+    .teal,
+    .cyan,
+    .blue,
+    .indigo,
+    .purple,
+    .pink,
+    .brown,
+    .gray,
+    .black,
+    .white,
+]
+
 enum Guess {
     case successful
     case duplicated
@@ -25,6 +43,18 @@ struct CodeBreaker {
         self.pegChoices = pegChoices
         masterCode.randomize(from: pegChoices)
         print(masterCode)
+    }
+
+    mutating func restartGame() {
+        for index in 0..<4 {
+            pegChoices[index] = availablePegs.randomElement() ?? Code.missing
+            masterCode.randomize(from: pegChoices)
+            print(masterCode)
+            attempts = []
+            for index in 0..<guess.pegs.count {
+                guess.pegs[index] = Code.missing
+            }
+        }
     }
 
     mutating func attemptGuess() -> Guess {
