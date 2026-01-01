@@ -12,6 +12,8 @@ struct CodeBreakerView: View {
         .brown, .yellow, .orange, .black,
     ])
     @State private var showAlert = false
+    @State private var errorAlertTitle = "Error"
+    @State private var errorAlertMessage = "Error attempting guess"
 
     var body: some View {
         VStack {
@@ -28,20 +30,22 @@ struct CodeBreakerView: View {
     var guessButton: some View {
         Button("Guess") {
             withAnimation {
-                let guessAttempted = game.attemptGuess()
-
-                if guessAttempted {
-                    let _ = print("guess attempted")
-                } else {
-                    let _ = print("error attempting guess")
+                switch game.attemptGuess() {
+                case .duplicated:
                     showAlert = true
+                    errorAlertMessage = "Guess has been tried already"
+                case .missing:
+                    showAlert = true
+                    errorAlertMessage = "You must choose all pegs"
+                case .successful:
+                    break
                 }
             }
         }
         .alert(isPresented: $showAlert) {
             Alert(
-                title: Text("Error"),
-                message: Text("Error attempting guess")
+                title: Text(errorAlertTitle),
+                message: Text(errorAlertMessage)
             )
         }
         .font(.system(size: 80))

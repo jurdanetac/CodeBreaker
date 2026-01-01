@@ -9,6 +9,12 @@ import SwiftUI
 
 typealias Peg = Color
 
+enum Guess {
+    case successful
+    case duplicated
+    case missing
+}
+
 struct CodeBreaker {
     var masterCode: Code = Code(kind: .master)
     var guess: Code = Code(kind: .guess)
@@ -21,20 +27,21 @@ struct CodeBreaker {
         print(masterCode)
     }
 
-    mutating func attemptGuess() -> Bool {
+    mutating func attemptGuess() -> Guess {
         var attempt = guess
         attempt.kind = .attempt(guess.match(against: masterCode))
 
         // RT2: Ignore attempts by the user that they’ve already tried
         // before or which have no pegs chosen at all.
         if attempts.contains(where: { $0 == attempt }) {
-            print("duplicated attempt")
-            return false
+            return Guess.duplicated
+        } else if attempt.pegs.contains(where: { $0 == Code.missing }) {
+            return Guess.missing
         }
 
         attempts.append(attempt)
 
-        return true
+        return Guess.successful
     }
 
     mutating func changeGuessPeg(at index: Int) {
