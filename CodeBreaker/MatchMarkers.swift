@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// let circleRadius = CGFloat(45)
+
 enum Match: CaseIterable {
     case exact
     case inexact
@@ -17,26 +19,39 @@ struct MatchMarkers: View {
     let matches: [Match]
 
     var body: some View {
-        // if not integer then it is an odd number of matches
-        let halfMatchCount = Double(matches.count) / 2.0
-        // for a closest integer to halfMatchCount number of columns
-        let columns = Int(halfMatchCount.rounded())
+        // if no matches just a placeholder that fills space
+        if matches.count == 0 {
+            ClearCircle()
+        } else {
+            let numberOfColumns: Int =
+                ({
+                    return Int((Double(matches.count) / 2.0).rounded())
+                })()
 
-        HStack {
-            ForEach(0..<columns, id: \.self) { index in
-                VStack {
-                    matchMarker(peg: index)
-
-                    if !(Int(halfMatchCount) == index) {
-                        matchMarker(peg: index)
+            VStack {
+                HStack {
+                    ForEach(0..<numberOfColumns, id: \.self) { pegIndex in
+                        matchMarker(peg: pegIndex)
+                    }
+                }
+                HStack {
+                    if numberOfColumns * 2 > matches.count {
+                        ForEach(
+                            numberOfColumns..<numberOfColumns * 2 - 1,
+                            id: \.self
+                        ) {
+                            pegIndex in
+                            matchMarker(peg: pegIndex)
+                        }
+                        ClearCircle()
                     } else {
-                        Circle()
-                            .fill(Color.clear)
-                            .strokeBorder(
-                                Color.clear,
-                                lineWidth: 2
-                            )
-                            .aspectRatio(1, contentMode: .fit)
+                        ForEach(
+                            numberOfColumns..<numberOfColumns * 2,
+                            id: \.self
+                        ) {
+                            pegIndex in
+                            matchMarker(peg: pegIndex)
+                        }
                     }
                 }
             }
@@ -59,47 +74,53 @@ struct MatchMarkers: View {
 
 struct MatchMarkersPreview: View {
     let pegs: Int
-    let circleRadius = CGFloat(45)
 
     var body: some View {
-        HStack {
-            ForEach(0..<pegs, id: \.self) { _ in
-                Circle().frame(width: circleRadius, height: 90)
+        // random so that it show multiple configurations and not hardcoded
+        let matches: [Match] = {
+            let allMatches = Match.allCases
+            var matchesForPegs: [Match] = []
+
+            for _ in 0..<pegs {
+                if let randomElement = allMatches.randomElement() {
+                    matchesForPegs.append(randomElement)
+                }
             }
 
-            Spacer()
+            return matchesForPegs
+        }()
 
-            let matches = {
-                let allMatches = Match.allCases
-                var matchesForPegs: [Match] = []
+        HStack {
+            ForEach(0..<pegs, id: \.self) { _ in
+                Circle().aspectRatio(1, contentMode: .fit)
+            }
+            MatchMarkers(matches: matches)
+        }.padding()
+    }
+}
 
-                for _ in 0..<pegs {
-                    if let randomElement = allMatches.randomElement() {
-                        matchesForPegs.append(randomElement)
-                    }
-                }
-
-                return matchesForPegs
-            }()
-
-            MatchMarkers(matches: matches).frame(
-                width: circleRadius,
-                height: circleRadius,
-                alignment: .leading
+struct ClearCircle: View {
+    var body: some View {
+        Circle()
+            .fill(Color.clear)
+            .strokeBorder(
+                Color.clear,
+                lineWidth: 2
             )
-        }
+            .aspectRatio(1, contentMode: .fit)
     }
 }
 
 #Preview {
     VStack(alignment: .leading) {
-        MatchMarkersPreview(pegs: 1)
-        MatchMarkersPreview(pegs: 2)
         MatchMarkersPreview(pegs: 3)
+        MatchMarkersPreview(pegs: 3)
+        MatchMarkersPreview(pegs: 4)
+        MatchMarkersPreview(pegs: 4)
         MatchMarkersPreview(pegs: 4)
         MatchMarkersPreview(pegs: 6)
         MatchMarkersPreview(pegs: 6)
         MatchMarkersPreview(pegs: 5)
         MatchMarkersPreview(pegs: 5)
-    }.padding()
+    }
 }
