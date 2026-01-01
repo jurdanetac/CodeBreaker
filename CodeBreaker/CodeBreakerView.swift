@@ -11,6 +11,7 @@ struct CodeBreakerView: View {
     @State var game = CodeBreaker(pegChoices: [
         .brown, .yellow, .orange, .black,
     ])
+    @State private var showAlert = false
 
     var body: some View {
         VStack {
@@ -27,8 +28,21 @@ struct CodeBreakerView: View {
     var guessButton: some View {
         Button("Guess") {
             withAnimation {
-                game.attemptGuess()
+                let guessAttempted = game.attemptGuess()
+
+                if guessAttempted {
+                    let _ = print("guess attempted")
+                } else {
+                    let _ = print("error attempting guess")
+                    showAlert = true
+                }
             }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text("Error attempting guess")
+            )
         }
         .font(.system(size: 80))
         .minimumScaleFactor(0.1)

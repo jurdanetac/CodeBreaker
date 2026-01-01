@@ -21,10 +21,20 @@ struct CodeBreaker {
         print(masterCode)
     }
 
-    mutating func attemptGuess() {
+    mutating func attemptGuess() -> Bool {
         var attempt = guess
         attempt.kind = .attempt(guess.match(against: masterCode))
+
+        // RT2: Ignore attempts by the user that they’ve already tried
+        // before or which have no pegs chosen at all.
+        if attempts.contains(where: { $0 == attempt }) {
+            print("duplicated attempt")
+            return false
+        }
+
         attempts.append(attempt)
+
+        return true
     }
 
     mutating func changeGuessPeg(at index: Int) {
@@ -42,7 +52,7 @@ struct CodeBreaker {
     }
 }
 
-struct Code {
+struct Code: Equatable {
     var kind: Kind
     var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
 
