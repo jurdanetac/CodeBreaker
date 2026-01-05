@@ -9,7 +9,10 @@ import SwiftUI
 
 typealias Peg = Color
 
-let availablePegs: [Color] = [
+let minPegs = 3
+let maxPegs = 6
+
+let allAvailablePegChoices: [Color] = [
     .red,
     .orange,
     .yellow,
@@ -33,27 +36,52 @@ enum Guess {
     case missing
 }
 
+func generatePegPermutation(pegCount: Int, pegChoices: [Peg]) -> [Peg] {
+    var generatedCode = [Peg](repeating: Code.missing, count: pegCount)
+
+    for index in 0..<pegCount {
+        let randomPeg = pegChoices.randomElement() ?? Code.missing
+        generatedCode[index] = randomPeg
+    }
+
+    return generatedCode
+}
+
 struct CodeBreaker {
-    var masterCode: Code = Code(kind: .master)
-    var guess: Code = Code(kind: .guess)
+    var masterCode: Code
+    var guess: Code
     var attempts: [Code] = []
     var pegChoices: [Peg]
 
-    init(pegChoices: [Peg] = [.red, .green, .blue, .yellow]) {
-        self.pegChoices = pegChoices
-        masterCode.randomize(from: pegChoices)
+    init(pegChoices: [Peg] = []) {
+        if pegChoices.count >= minPegs && pegChoices.count <= maxPegs {
+            self.pegChoices = pegChoices
+        } else {
+            let randomPegCount = (minPegs...maxPegs).randomElement() ?? minPegs
+            let generatedCode = generatePegPermutation(
+                pegCount: randomPegCount,
+                pegChoices: allAvailablePegChoices
+            )
+            self.pegChoices = generatedCode
+        }
+
+        self.masterCode = Code(kind: .master, pegCount: self.pegChoices.count)
+        self.masterCode.randomize(from: self.pegChoices)
         print(masterCode)
+
+        self.guess = Code(kind: .guess, pegCount: self.pegChoices.count)
     }
 
     mutating func restartGame() {
-        for index in 0..<4 {
-            pegChoices[index] = availablePegs.randomElement() ?? Code.missing
-            masterCode.randomize(from: pegChoices)
-            print(masterCode)
-            attempts = []
-            for index in 0..<guess.pegs.count {
-                guess.pegs[index] = Code.missing
-            }
+        let generatedCode = generatePegPermutation(
+            pegCount: pegChoices.count,
+            pegChoices: pegChoices
+        )
+        masterCode.randomize(from: generatedCode)
+        print(masterCode)
+        attempts = []
+        for index in 0..<guess.pegs.count {
+            guess.pegs[index] = Code.missing
         }
     }
 
@@ -91,7 +119,12 @@ struct CodeBreaker {
 
 struct Code: Equatable {
     var kind: Kind
-    var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
+    var pegs: [Peg]
+
+    init(kind: Kind, pegCount: Int) {
+        self.kind = kind
+        pegs = Array(repeating: Code.missing, count: pegCount)
+    }
 
     static let missing: Peg = .clear
 

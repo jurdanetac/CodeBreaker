@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CodeBreakerView: View {
     @State var game = CodeBreaker(pegChoices: [
-        .brown, .yellow, .orange, .black,
+        .brown, .yellow, .orange, .black, .red,
     ])
     @State private var showAlert = false
     @State private var errorAlertTitle = "Error"
@@ -17,7 +17,7 @@ struct CodeBreakerView: View {
 
     var body: some View {
         VStack {
-            // view(for: game.masterCode)
+            view(for: game.masterCode)
             ScrollView {
                 view(for: game.guess)
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
