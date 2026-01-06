@@ -7,6 +7,28 @@
 
 import SwiftUI
 
+func createButton(
+    label: String,
+    iconSystemName: String,
+    action: @escaping () -> Void
+)
+    -> some View
+{
+    Button(
+        action: {
+            withAnimation {
+                action()
+            }
+        },
+        label: {
+            VStack {
+                Image(systemName: iconSystemName).imageScale(.large)
+                Text(label).font(.headline)
+            }
+        }
+    )
+}
+
 struct CodeBreakerView: View {
     @State var game = CodeBreaker(pegChoices: [
         .brown, .yellow, .orange, .black, .red,
@@ -24,15 +46,42 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
-            restartGameButton
+            HStack {
+                restartGameButton
+                Spacer()
+                colorsVariantButton
+                Spacer()
+                emojiVariantButton
+            }
         }.padding()
     }
 
     var restartGameButton: some View {
-        Button("Restart Game") {
+        createButton(
+            label: "Restart Game",
+            iconSystemName: "restart.circle"
+        ) {
             withAnimation {
                 game.restartGame()
             }
+        }
+    }
+
+    var emojiVariantButton: some View {
+        createButton(
+            label: "Emoji theme",
+            iconSystemName: "face.smiling",
+        ) {
+            let _ = print("emoji variant button pressed")
+        }
+    }
+
+    var colorsVariantButton: some View {
+        createButton(
+            label: "Colors theme",
+            iconSystemName: "paintpalette",
+        ) {
+            let _ = print("colors variant button pressed")
         }
     }
 
