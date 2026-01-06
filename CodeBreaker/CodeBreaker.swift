@@ -36,7 +36,8 @@ enum Guess {
     case missing
 }
 
-func generatePegPermutation(pegCount: Int, pegChoices: [Peg]) -> [Peg] {
+func generatePegPermutation(for pegCount: Int, using pegChoices: [Peg]) -> [Peg]
+{
     var generatedCode = [Peg](repeating: Code.missing, count: pegCount)
 
     for index in 0..<pegCount {
@@ -45,6 +46,10 @@ func generatePegPermutation(pegCount: Int, pegChoices: [Peg]) -> [Peg] {
     }
 
     return generatedCode
+}
+
+func generatePegCount() -> Int {
+    return (minPegs...maxPegs).randomElement() ?? minPegs
 }
 
 struct CodeBreaker {
@@ -57,10 +62,9 @@ struct CodeBreaker {
         if pegChoices.count >= minPegs && pegChoices.count <= maxPegs {
             self.pegChoices = pegChoices
         } else {
-            let randomPegCount = (minPegs...maxPegs).randomElement() ?? minPegs
             let generatedCode = generatePegPermutation(
-                pegCount: randomPegCount,
-                pegChoices: allAvailablePegChoices
+                for: generatePegCount(),
+                using: allAvailablePegChoices
             )
             self.pegChoices = generatedCode
         }
@@ -73,13 +77,22 @@ struct CodeBreaker {
     }
 
     mutating func restartGame() {
+        // new configuration
+        let generatedPegCount = generatePegCount()
         let generatedCode = generatePegPermutation(
-            pegCount: pegChoices.count,
-            pegChoices: pegChoices
+            for: generatedPegCount,
+            using: pegChoices
         )
-        masterCode.randomize(from: generatedCode)
+
+        var newMasterCode = Code(kind: .master, pegCount: generatedPegCount)
+        newMasterCode.randomize(from: generatedCode)
+        masterCode = newMasterCode
         print(masterCode)
+
+        let newGuess = Code(kind: .guess, pegCount: generatedPegCount)
+        guess = newGuess
         attempts = []
+
         for index in 0..<guess.pegs.count {
             guess.pegs[index] = Code.missing
         }
