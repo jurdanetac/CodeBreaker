@@ -39,8 +39,18 @@ struct CodeBreaker {
     mutating func restartGame() {
         // new configuration
         let generatedPegCount = Int.random(in: minPegCount..<maxPegCount)
+        var generatedPegChoices = [Peg](
+            repeating: Code.missing,
+            count: generatedPegCount
+        )
+
+        for index in 0..<generatedPegCount {
+            generatedPegChoices[index] = self.pegChoices.randomElement()!
+        }
+
         var newMasterCode = Code(kind: .master, pegCount: generatedPegCount)
-        newMasterCode.randomize(from: pegChoices)
+        newMasterCode.randomize(from: generatedPegChoices)
+
         masterCode = newMasterCode
         print(masterCode)
 
@@ -99,7 +109,7 @@ struct Code: Equatable {
 
     init(kind: Kind, pegCount: Int) {
         self.kind = kind
-        pegs = Array(repeating: Code.missing, count: pegCount)
+        self.pegs = Array(repeating: Code.missing, count: pegCount)
     }
 
     static let missing: Peg = "clear"
