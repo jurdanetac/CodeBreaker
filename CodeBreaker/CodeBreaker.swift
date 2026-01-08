@@ -7,49 +7,15 @@
 
 import SwiftUI
 
-typealias Peg = Color
+typealias Peg = String
 
-let minPegs = 3
-let maxPegs = 6
-
-let allAvailablePegChoices: [Color] = [
-    .red,
-    .orange,
-    .yellow,
-    .green,
-    .mint,
-    .teal,
-    .cyan,
-    .blue,
-    .indigo,
-    .purple,
-    .pink,
-    .brown,
-    .gray,
-    .black,
-    .white,
-]
+let minPegCount = 3
+let maxPegCount = 6
 
 enum Guess {
     case successful
     case duplicated
     case missing
-}
-
-func generatePegPermutation(for pegCount: Int, using pegChoices: [Peg]) -> [Peg]
-{
-    var generatedCode = [Peg](repeating: Code.missing, count: pegCount)
-
-    for index in 0..<pegCount {
-        let randomPeg = pegChoices.randomElement() ?? Code.missing
-        generatedCode[index] = randomPeg
-    }
-
-    return generatedCode
-}
-
-func generatePegCount() -> Int {
-    return (minPegs...maxPegs).randomElement() ?? minPegs
 }
 
 struct CodeBreaker {
@@ -59,16 +25,10 @@ struct CodeBreaker {
     var pegChoices: [Peg]
 
     init(pegChoices: [Peg] = []) {
-        if pegChoices.count >= minPegs && pegChoices.count <= maxPegs {
-            self.pegChoices = pegChoices
-        } else {
-            let generatedCode = generatePegPermutation(
-                for: generatePegCount(),
-                using: allAvailablePegChoices
-            )
-            self.pegChoices = generatedCode
-        }
-
+        // TODO: let's assume we're passed a correct array of peg choices
+        // if pegChoices.count >= minPegs && pegChoices.count <= maxPegs {
+        // }
+        self.pegChoices = pegChoices
         self.masterCode = Code(kind: .master, pegCount: self.pegChoices.count)
         self.masterCode.randomize(from: self.pegChoices)
         print(masterCode)
@@ -78,24 +38,15 @@ struct CodeBreaker {
 
     mutating func restartGame() {
         // new configuration
-        let generatedPegCount = generatePegCount()
-        let generatedCode = generatePegPermutation(
-            for: generatedPegCount,
-            using: pegChoices
-        )
-
+        let generatedPegCount = Int.random(in: minPegCount..<maxPegCount)
         var newMasterCode = Code(kind: .master, pegCount: generatedPegCount)
-        newMasterCode.randomize(from: generatedCode)
+        newMasterCode.randomize(from: pegChoices)
         masterCode = newMasterCode
         print(masterCode)
 
         let newGuess = Code(kind: .guess, pegCount: generatedPegCount)
         guess = newGuess
         attempts = []
-
-        for index in 0..<guess.pegs.count {
-            guess.pegs[index] = Code.missing
-        }
     }
 
     mutating func attemptGuess() -> Guess {
@@ -134,12 +85,24 @@ struct Code: Equatable {
     var kind: Kind
     var pegs: [Peg]
 
+    static let colors: [Peg: Color] = [
+        "red": Color.red,
+        "yellow": Color.yellow,
+        "blue": Color.blue,
+    ]
+
+    static let emojis: [Peg: Peg] = [
+        "rocket": "🚀",
+        "rainbow": "🌈",
+        "star": "⭐",
+    ]
+
     init(kind: Kind, pegCount: Int) {
         self.kind = kind
         pegs = Array(repeating: Code.missing, count: pegCount)
     }
 
-    static let missing: Peg = .clear
+    static let missing: Peg = "clear"
 
     enum Kind: Equatable {
         case master

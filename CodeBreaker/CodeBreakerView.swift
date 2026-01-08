@@ -31,7 +31,8 @@ func createButton(
 
 struct CodeBreakerView: View {
     @State var game = CodeBreaker(pegChoices: [
-        .brown, .yellow, .orange, .black, .red,
+        "yellow", "red", "rocket",
+        "yellow", "red", "rocket",
     ])
     @State private var showAlert = false
     @State private var errorAlertTitle = "Error"
@@ -113,21 +114,53 @@ struct CodeBreakerView: View {
     func view(for code: Code) -> some View {
         HStack {
             ForEach(code.pegs.indices, id: \.self) { index in
+                let peg = code.pegs[index]
+
+                let kindOfPeg: String =
+                    ({
+                        // let _ = print(peg, separator: "")
+
+                        if Code.colors.keys.contains(peg) {
+                            // let _ = print("color")
+                            return "color"
+                        } else if Code.emojis.keys.contains(peg) {
+                            // let _ = print("emoji")
+                            return "emoji"
+                        }
+                        // let _ = print("missing")
+                        return "missing"
+                    })()
+
                 RoundedRectangle(cornerRadius: 10)
                     .overlay {
-                        if code.pegs[index] == Code.missing {
+                        if kindOfPeg == "missing" {
                             RoundedRectangle(cornerRadius: 10)
                                 .strokeBorder(Color.gray)
                         }
                     }
                     .contentShape(Rectangle())
                     .aspectRatio(1, contentMode: .fit)
-                    .foregroundStyle(code.pegs[index])
+                    .foregroundStyle(
+                        ({
+                            if kindOfPeg == "color" {
+                                return Code.colors[peg]!
+                            }
+                            return Color.clear
+                        })()
+                    )
+                    .overlay {
+                        if kindOfPeg == "emoji" {
+                            Text("\(Code.emojis[peg]!)")
+                                .font(.system(size: 80))
+                                .minimumScaleFactor(0.1)
+                        }
+                    }
                     .onTapGesture {
                         if code.kind == .guess {
                             game.changeGuessPeg(at: index)
                         }
                     }
+
             }
             MatchMarkers(matches: code.matches).overlay {
                 if code.kind == .guess {
