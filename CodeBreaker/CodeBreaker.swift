@@ -29,9 +29,20 @@ struct CodeBreaker {
             name: "colors",
             views: [
                 "red": Color.red,
+                "orange": Color.orange,
                 "yellow": Color.yellow,
+                "green": Color.green,
+                "mint": Color.mint,
+                "teal": Color.teal,
+                "cyan": Color.cyan,
                 "blue": Color.blue,
+                "indigo": Color.indigo,
+                "purple": Color.purple,
+                "pink": Color.pink,
+                "brown": Color.brown,
+                "gray": Color.gray,
             ]
+
         ),
         Theme(
             name: "emojis",
@@ -39,7 +50,18 @@ struct CodeBreaker {
                 "rocket": Text("🚀"),
                 "rainbow": Text("🌈"),
                 "star": Text("⭐"),
+                "fire": Text("🔥"),
+                "heart": Text("❤️"),
+                "crown": Text("👑"),
+                "pizza": Text("🍕"),
+                "earth": Text("🌍"),
+                "alien": Text("👽"),
+                "ghost": Text("👻"),
+                "robot": Text("🤖"),
+                "party": Text("🥳"),
+                "check": Text("✅"),
             ]
+
         ),
     ]
 
