@@ -18,22 +18,89 @@ enum Guess {
     case missing
 }
 
+struct Theme {
+    let name: String
+    let views: [String: any View]
+}
+
 struct CodeBreaker {
+    let themes: [Theme] = [
+        Theme(
+            name: "colors",
+            views: [
+                "red": Color.red,
+                "yellow": Color.yellow,
+                "blue": Color.blue,
+            ]
+        ),
+        Theme(
+            name: "emojis",
+            views: [
+                "rocket": Text("🚀"),
+                "rainbow": Text("🌈"),
+                "star": Text("⭐"),
+            ]
+        ),
+    ]
+
+    let numberOfPegs: Int
+
     var masterCode: Code
     var guess: Code
     var attempts: [Code] = []
-    var pegChoices: [Peg]
 
-    init(pegChoices: [Peg] = []) {
-        // TODO: let's assume we're passed a correct array of peg choices
-        // if pegChoices.count >= minPegs && pegChoices.count <= maxPegs {
-        // }
-        self.pegChoices = pegChoices
-        self.masterCode = Code(kind: .master, pegCount: self.pegChoices.count)
-        self.masterCode.randomize(from: self.pegChoices)
-        print(masterCode)
+    // by default use colors theme
+    var pegTheme: Theme
+    var pegChoices: [Peg] {
+        return Array(pegTheme.views.keys)
+    }
 
-        self.guess = Code(kind: .guess, pegCount: self.pegChoices.count)
+    init(of numberOfPegs: Int, with themeName: String) {
+        var numberOfPegs = numberOfPegs
+        var theme: Theme
+
+        if !themes.filter({ $0.name == "themeName" }).isEmpty {
+            let foundTheme = themes.filter({ $0.name == "themeName" }).first!
+            if numberOfPegs == foundTheme.views.count {
+                theme = foundTheme
+            } else {
+                // invalid peg count
+                if !(numberOfPegs >= minPegCount && numberOfPegs <= maxPegCount)
+                {
+                    numberOfPegs = Int.random(
+                        in: minPegCount..<maxPegCount
+                    )
+                }
+
+                var randomPegs: [String: any View] = [:]
+                repeat {
+                    let peg = foundTheme.views.randomElement()!
+
+                    if !randomPegs.contains(where: { $0.key == peg.key }) {
+                        randomPegs[peg.key] = peg.value
+                    }
+                } while randomPegs.count != numberOfPegs
+
+                theme = Theme(name: themeName, views: randomPegs)
+            }
+        } else {
+            // default safe
+            theme = themes[0]
+            numberOfPegs = themes[0].views.count
+        }
+
+        self.pegTheme = theme
+        self.numberOfPegs = numberOfPegs
+
+        self.masterCode = Code(kind: .master, pegCount: numberOfPegs)
+        self.masterCode.randomize(from: Array(theme.views.keys))
+
+        self.guess = Code(kind: .guess, pegCount: pegTheme.views.count)
+    }
+
+    mutating func setTheme(theme: Theme) {
+        self.pegTheme = theme
+        self.restartGame()
     }
 
     mutating func restartGame() {
@@ -50,9 +117,7 @@ struct CodeBreaker {
 
         var newMasterCode = Code(kind: .master, pegCount: generatedPegCount)
         newMasterCode.randomize(from: generatedPegChoices)
-
         masterCode = newMasterCode
-        print(masterCode)
 
         let newGuess = Code(kind: .guess, pegCount: generatedPegCount)
         guess = newGuess
@@ -78,15 +143,18 @@ struct CodeBreaker {
 
     mutating func changeGuessPeg(at index: Int) {
         let existingPeg = guess.pegs[index]
-        if let indexOfExistingPegInPegChoices = pegChoices.firstIndex(
-            of: existingPeg
-        ) {
-            let newPeg = pegChoices[
-                (indexOfExistingPegInPegChoices + 1) % pegChoices.count
+        if let indexOfExistingPegInPegChoices = self.pegChoices
+            .firstIndex(
+                of: existingPeg
+            )
+        {
+            let newPeg = self.pegChoices[
+                (indexOfExistingPegInPegChoices + 1)
+                    % self.pegChoices.count
             ]
             guess.pegs[index] = newPeg
         } else {
-            guess.pegs[index] = pegChoices.first ?? Code.missing
+            guess.pegs[index] = self.pegChoices.first ?? Code.missing
         }
     }
 }
@@ -94,18 +162,6 @@ struct CodeBreaker {
 struct Code: Equatable {
     var kind: Kind
     var pegs: [Peg]
-
-    static let colors: [Peg: Color] = [
-        "red": Color.red,
-        "yellow": Color.yellow,
-        "blue": Color.blue,
-    ]
-
-    static let emojis: [Peg: Peg] = [
-        "rocket": "🚀",
-        "rainbow": "🌈",
-        "star": "⭐",
-    ]
 
     init(kind: Kind, pegCount: Int) {
         self.kind = kind

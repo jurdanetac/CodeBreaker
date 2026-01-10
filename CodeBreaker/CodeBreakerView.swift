@@ -16,9 +16,7 @@ func createButton(
 {
     Button(
         action: {
-            withAnimation {
-                action()
-            }
+            action()
         },
         label: {
             VStack {
@@ -30,10 +28,7 @@ func createButton(
 }
 
 struct CodeBreakerView: View {
-    @State var game = CodeBreaker(pegChoices: [
-        "yellow", "red", "rocket",
-        "yellow", "red", "rocket",
-    ])
+    @State var game = CodeBreaker(of: 3, with: "colors")
     @State private var showAlert = false
     @State private var errorAlertTitle = "Error"
     @State private var errorAlertMessage = "Error attempting guess"
@@ -73,7 +68,9 @@ struct CodeBreakerView: View {
             label: "Emoji theme",
             iconSystemName: "face.smiling",
         ) {
-            let _ = print("emoji variant button pressed")
+            game.setTheme(
+                theme: game.themes.first(where: { $0.name == "emojis" })!
+            )
         }
     }
 
@@ -82,7 +79,9 @@ struct CodeBreakerView: View {
             label: "Colors theme",
             iconSystemName: "paintpalette",
         ) {
-            let _ = print("colors variant button pressed")
+            game.setTheme(
+                theme: game.themes.first(where: { $0.name == "colors" })!
+            )
         }
     }
 
@@ -116,24 +115,9 @@ struct CodeBreakerView: View {
             ForEach(code.pegs.indices, id: \.self) { index in
                 let peg = code.pegs[index]
 
-                let kindOfPeg: String =
-                    ({
-                        // let _ = print(peg, separator: "")
-
-                        if Code.colors.keys.contains(peg) {
-                            // let _ = print("color")
-                            return "color"
-                        } else if Code.emojis.keys.contains(peg) {
-                            // let _ = print("emoji")
-                            return "emoji"
-                        }
-                        // let _ = print("missing")
-                        return "missing"
-                    })()
-
                 RoundedRectangle(cornerRadius: 10)
                     .overlay {
-                        if kindOfPeg == "missing" {
+                        if peg == "clear" {
                             RoundedRectangle(cornerRadius: 10)
                                 .strokeBorder(Color.gray)
                         }
@@ -142,25 +126,31 @@ struct CodeBreakerView: View {
                     .aspectRatio(1, contentMode: .fit)
                     .foregroundStyle(
                         ({
-                            if kindOfPeg == "color" {
-                                return Code.colors[peg]!
+                            if game.pegTheme.name == "colors" {
+                                if let color = game.pegTheme.views[peg] {
+                                    return color as! Color
+                                }
                             }
                             return Color.clear
                         })()
                     )
                     .overlay {
-                        if kindOfPeg == "emoji" {
-                            Text("\(Code.emojis[peg]!)")
-                                .font(.system(size: 80))
-                                .minimumScaleFactor(0.1)
-                        }
+                        ({
+                            if game.pegTheme.name == "emojis" {
+                                if let emoji = game.pegTheme.views[peg] {
+                                    return emoji as! Text
+                                }
+                            }
+                            return Text("")
+                        })()
+                        .font(.system(size: 80))
+                        .minimumScaleFactor(0.1)
                     }
                     .onTapGesture {
                         if code.kind == .guess {
                             game.changeGuessPeg(at: index)
                         }
                     }
-
             }
             MatchMarkers(matches: code.matches).overlay {
                 if code.kind == .guess {
