@@ -89,6 +89,6 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
-    // CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow])
-    CodeBreakerView()
+    CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow, .red])
+    // CodeBreakerView()
 }
