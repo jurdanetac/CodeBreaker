@@ -8,21 +8,29 @@
 import SwiftUI
 
 struct CodeBreakerView: View {
-    @State var game = CodeBreaker(pegChoices: [
-        .brown, .yellow, .orange, .black,
-    ])
+    let pegChoices: [Peg]
+    @State var game: CodeBreaker
+
+    init(pegChoices: [Peg] = [.brown, .yellow, .orange, .black]) {
+        self.pegChoices = pegChoices
+        game = CodeBreaker(pegChoices: pegChoices)
+    }
+
     @State private var showAlert = false
     @State private var errorAlertTitle = "Error"
     @State private var errorAlertMessage = "Error attempting guess"
 
     var body: some View {
         VStack {
-            // view(for: game.masterCode)
+            view(for: game.masterCode)
             ScrollView {
                 view(for: game.guess)
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
                     view(for: game.attempts[index])
                 }
+            }
+            Button("Restart Game") {
+                game = CodeBreaker(pegChoices: pegChoices)
             }
         }.padding()
     }
@@ -81,5 +89,6 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
+    // CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow])
     CodeBreakerView()
 }
