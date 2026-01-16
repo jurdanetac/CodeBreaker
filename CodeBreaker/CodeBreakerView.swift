@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+let availablePegs: [Peg] = [
+    .red, .blue, .green, .yellow, .brown, .orange, .pink, .purple,
+]
+
 struct CodeBreakerView: View {
     let pegChoices: [Peg]
     @State var game: CodeBreaker
@@ -29,10 +33,27 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
-            Button("Restart Game") {
-                game = CodeBreaker(pegChoices: pegChoices)
-            }
+            restartGameButton
         }.padding()
+    }
+
+    var restartGameButton: some View {
+        Button("Restart Game") {
+            let randomPegCount = Int.random(in: minPegs...maxPegs)
+            var randomPegs: [Peg] = []
+
+            repeat {
+                if let randomPeg = availablePegs.randomElement() {
+                    if !randomPegs.contains(randomPeg) {
+                        randomPegs.append(randomPeg)
+                    }
+                }
+            } while randomPegs.count != randomPegCount
+
+            withAnimation {
+                game = CodeBreaker(pegChoices: randomPegs)
+            }
+        }
     }
 
     var guessButton: some View {
@@ -89,6 +110,6 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
-    CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow, .red])
+    CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow, .orange])
     // CodeBreakerView()
 }
