@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-typealias Peg = Color
+typealias Peg = String
 
 let minPegs = 3
 let maxPegs = 6
@@ -24,7 +24,7 @@ struct CodeBreaker {
     var attempts: [Code] = []
     var pegChoices: [Peg]
 
-    init(pegChoices: [Peg] = [.red, .green, .blue, .yellow]) {
+    init(pegChoices: [Peg] = ["red", "green", "blue", "yellow"]) {
         masterCode = Code(kind: .master, pegCount: pegChoices.count)
         guess = Code(kind: .guess, pegCount: pegChoices.count)
 
@@ -74,7 +74,7 @@ struct Code: Equatable {
         self.pegs = Array(repeating: Code.missing, count: pegCount)
     }
 
-    static let missing: Peg = .clear
+    static let missing: Peg = "clear"
 
     enum Kind: Equatable {
         case master

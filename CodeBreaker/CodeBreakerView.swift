@@ -7,17 +7,78 @@
 
 import SwiftUI
 
-let availablePegs: [Peg] = [
-    .red, .blue, .green, .yellow, .brown, .orange, .pink, .purple,
+// peg themes available to use
+enum Theme {
+    case emojis
+    case colors
+}
+
+// a default set of earth tones to use as fallback
+let defaultPegChoices = ["brown", "yellow", "orange", "black"]
+
+let supportedColors: [Peg: Color] = [
+    "red": .red, "blue": .blue, "green": .green, "yellow": .yellow,
+    "brown": .brown, "orange": .orange, "pink": .orange,
+    "purple": .purple, "black": .black,
 ]
+
+let supportedEmojis: [Peg] = [
+    "😀", "🤪", "🥳", "😨",
+    "🚗", "🚲", "🛩", "⛵",
+]
+
+func getBackground(for peg: Peg) -> Color {
+    // case color
+    if supportedColors.keys.contains(peg) {
+        let color = supportedColors.first { $0.key == peg }!.value
+        return color
+    }
+
+    // case missing and emoji
+    return Color.clear
+}
+
+func getForeground(for peg: Peg) -> Text {
+    // case emoji
+    if peg != Code.missing && !supportedColors.keys.contains(peg) {
+        return Text(peg)
+    }
+
+    // case missing and color
+    return Text("")
+}
 
 struct CodeBreakerView: View {
     let pegChoices: [Peg]
     @State var game: CodeBreaker
+    @State var theme: Theme
 
-    init(pegChoices: [Peg] = [.brown, .yellow, .orange, .black]) {
-        self.pegChoices = pegChoices
-        game = CodeBreaker(pegChoices: pegChoices)
+    init(pegChoices: [Peg] = defaultPegChoices) {
+        // check if we're passed either colors or emojis
+        let areAllPegChoicesColors: Bool = pegChoices.allSatisfy { pegChoice in
+            supportedColors.keys.contains { $0 == pegChoice }
+        }
+        let areAllPegChoicesEmojis: Bool = pegChoices.allSatisfy {
+            pegChoice in
+            supportedEmojis.contains { $0 == pegChoice }
+        }
+
+        var pegChoicesToUse = pegChoices
+
+        // determine initial theme
+        if areAllPegChoicesColors {
+            self.theme = .colors
+        } else if areAllPegChoicesEmojis {
+            // emojis (strings)
+            self.theme = .emojis
+        } else {
+            // use a default when mixed type of peg choices are passed
+            self.theme = .colors
+            pegChoicesToUse = defaultPegChoices
+        }
+
+        self.pegChoices = pegChoicesToUse
+        game = CodeBreaker(pegChoices: pegChoicesToUse)
     }
 
     @State private var showAlert = false
@@ -43,10 +104,17 @@ struct CodeBreakerView: View {
             var randomPegs: [Peg] = []
 
             repeat {
-                if let randomPeg = availablePegs.randomElement() {
-                    if !randomPegs.contains(randomPeg) {
-                        randomPegs.append(randomPeg)
-                    }
+                let randomPeg: Peg
+
+                switch self.theme {
+                case .emojis:
+                    randomPeg = supportedEmojis.randomElement()!
+                case .colors:
+                    randomPeg = supportedColors.randomElement()!.key
+                }
+
+                if !randomPegs.contains(randomPeg) {
+                    randomPegs.append(randomPeg)
                 }
             } while randomPegs.count != randomPegCount
 
@@ -84,16 +152,32 @@ struct CodeBreakerView: View {
     func view(for code: Code) -> some View {
         HStack {
             ForEach(code.pegs.indices, id: \.self) { index in
+                let peg = code.pegs[index]
+
                 RoundedRectangle(cornerRadius: 10)
                     .overlay {
-                        if code.pegs[index] == Code.missing {
+                        if peg == Code.missing {
                             RoundedRectangle(cornerRadius: 10)
                                 .strokeBorder(Color.gray)
                         }
                     }
                     .contentShape(Rectangle())
                     .aspectRatio(1, contentMode: .fit)
-                    .foregroundStyle(code.pegs[index])
+                    .foregroundStyle(
+                        ({
+                            let pegBackground = getBackground(for: peg)
+                            return pegBackground
+                        })()
+                    )
+                    .overlay {
+                        ({
+                            let pegForeground = getForeground(for: peg)
+                            return
+                                pegForeground
+                                .font(.system(size: 120))
+                                .minimumScaleFactor(9 / 120)
+                        })()
+                    }
                     .onTapGesture {
                         if code.kind == .guess {
                             game.changeGuessPeg(at: index)
@@ -110,6 +194,10 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
-    CodeBreakerView(pegChoices: [.red, .blue, .green, .yellow, .orange])
+    CodeBreakerView(pegChoices: [
+        "red", "blue", "green", "yellow",
+    ])
+    CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"]
+    )
     // CodeBreakerView()
 }
