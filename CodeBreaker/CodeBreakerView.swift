@@ -9,7 +9,7 @@ import SwiftUI
 
 // peg themes available to use
 enum Theme {
-    case emojis
+    case emojis(theme: String)
     case colors
 }
 
@@ -22,9 +22,9 @@ let supportedColors: [Peg: Color] = [
     "purple": .purple, "black": .black,
 ]
 
-let supportedEmojis: [Peg] = [
-    "😀", "🤪", "🥳", "😨",
-    "🚗", "🚲", "🛩", "⛵",
+let supportedEmojis: [String: [Peg]] = [
+    "faces": ["😀", "🤪", "🥳", "😨"],
+    "vehicles": ["🚗", "🚲", "🛩", "⛵"],
 ]
 
 func getBackground(for peg: Peg) -> Color {
@@ -54,27 +54,29 @@ struct CodeBreakerView: View {
     @State var theme: Theme
 
     init(pegChoices: [Peg] = defaultPegChoices) {
+        var pegChoicesToUse = pegChoices
+
         // check if we're passed either colors or emojis
         let areAllPegChoicesColors: Bool = pegChoices.allSatisfy { pegChoice in
             supportedColors.keys.contains { $0 == pegChoice }
         }
-        let areAllPegChoicesEmojis: Bool = pegChoices.allSatisfy {
-            pegChoice in
-            supportedEmojis.contains { $0 == pegChoice }
-        }
 
-        var pegChoicesToUse = pegChoices
-
-        // determine initial theme
         if areAllPegChoicesColors {
             self.theme = .colors
-        } else if areAllPegChoicesEmojis {
-            // emojis (strings)
-            self.theme = .emojis
         } else {
-            // use a default when mixed type of peg choices are passed
-            self.theme = .colors
-            pegChoicesToUse = defaultPegChoices
+            // check there's a theme that contains all these pegs
+            let themeSet: [String: [Peg]] = supportedEmojis.filter { themeSet in
+                themeSet.value.contains(pegChoices)
+            }
+
+            if themeSet.isEmpty {
+                // use a default when mixed peg choices of themes are passed
+                self.theme = .colors
+                pegChoicesToUse = defaultPegChoices
+            } else {
+                // emojis (strings)
+                self.theme = .emojis(theme: themeSet.first!.key)
+            }
         }
 
         self.pegChoices = pegChoicesToUse
@@ -108,7 +110,8 @@ struct CodeBreakerView: View {
 
                 switch self.theme {
                 case .emojis:
-                    randomPeg = supportedEmojis.randomElement()!
+                    // randomPeg = supportedEmojis.randomElement()!
+                    randomPeg = supportedColors.randomElement()!.key
                 case .colors:
                     randomPeg = supportedColors.randomElement()!.key
                 }
@@ -194,10 +197,8 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
-    CodeBreakerView(pegChoices: [
-        "red", "blue", "green", "yellow",
-    ])
-    CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"]
-    )
+    CodeBreakerView(pegChoices: ["red", "blue", "green", "yellow"])
+    CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"])
+    // CodeBreakerView(pegChoices: ["🚗", "🚲", "🛩", "⛵"])
     // CodeBreakerView()
 }
