@@ -7,25 +7,48 @@
 
 import SwiftUI
 
-// peg themes available to use
-enum Theme {
+extension Color {
     // all supported colors
-    static let supportedColors: [Peg: Color] = [
-        "red": .red,
-        "blue": .blue,
-        "green": .green,
-        "yellow": .yellow,
-        "brown": .brown,
-        "orange": .orange,
-        "pink": .pink,
-        "purple": .purple,
-        "indigo": .indigo,
-        "teal": .teal,
-        "mint": .mint,
-        "cyan": .cyan,
-        "gray": .gray,
+    static let allColorsNames: [String] = [
+        "red",
+        "blue",
+        "green",
+        "yellow",
+        "brown",
+        "orange",
+        "pink",
+        "purple",
+        "indigo",
+        "teal",
+        "mint",
+        "cyan",
+        "gray",
+        "grey",
     ]
 
+    init?(name: String) {
+        switch name.lowercased().trimmingCharacters(in: .whitespaces) {
+        case "red": self = .red
+        case "blue": self = .blue
+        case "green": self = .green
+        case "yellow": self = .yellow
+        case "orange": self = .orange
+        case "brown": self = .brown
+        case "pink": self = .pink
+        case "purple": self = .purple
+        case "indigo": self = .indigo
+        case "teal": self = .teal
+        case "mint": self = .mint
+        case "cyan": self = .cyan
+        case "gray", "grey": self = .gray
+        default:
+            return nil  // This makes it failable
+        }
+    }
+}
+
+// peg themes available to use
+enum Theme {
     // all supported emojis
     static let supportedEmojis: [String: [String]] = [
         "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
@@ -44,19 +67,13 @@ enum Theme {
 }
 
 func getBackground(for peg: Peg) -> Color {
-    // case color
-    if Theme.supportedColors.keys.contains(peg) {
-        let color = Theme.supportedColors.first { $0.key == peg }!.value
-        return color
-    }
-
-    // case missing and emoji
-    return Color.clear
+    // case color ? : case missing and emoji
+    Color(name: peg) != nil ? Color(name: peg)! : .clear
 }
 
 func getForeground(for peg: Peg) -> Text {
     // case emoji
-    if peg != Code.missing && !Theme.supportedColors.keys.contains(peg) {
+    if peg != Code.missing && (Color(name: peg) == nil) {
         return Text(peg)
     }
 
@@ -74,7 +91,7 @@ struct CodeBreakerView: View {
 
         // check if we're passed either colors or emojis
         let areAllPegChoicesColors: Bool = pegChoices.allSatisfy { pegChoice in
-            Theme.supportedColors.keys.contains { $0 == pegChoice }
+            Color(name: pegChoice) != nil
         }
 
         if areAllPegChoicesColors {
@@ -137,7 +154,7 @@ struct CodeBreakerView: View {
             case .emojis(let currentTheme):
                 pegsToChooseFrom = Theme.supportedEmojis[currentTheme]!
             case .colors:
-                pegsToChooseFrom = Array(Theme.supportedColors.keys)
+                pegsToChooseFrom = Color.allColorsNames
             }
 
             // array that will hold the selected pegs
