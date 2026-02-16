@@ -11,8 +11,19 @@ import SwiftUI
 enum Theme {
     // all supported colors
     static let supportedColors: [Peg: Color] = [
-        "red": .red, "blue": .blue, "green": .green, "yellow": .yellow,
-        "brown": .brown, "orange": .orange,
+        "red": .red,
+        "blue": .blue,
+        "green": .green,
+        "yellow": .yellow,
+        "brown": .brown,
+        "orange": .orange,
+        "pink": .pink,
+        "purple": .purple,
+        "indigo": .indigo,
+        "teal": .teal,
+        "mint": .mint,
+        "cyan": .cyan,
+        "gray": .gray,
     ]
 
     // all supported emojis
