@@ -14,17 +14,19 @@ enum Theme {
 }
 
 // a default set of earth tones to use as fallback
-let defaultPegChoices = ["brown", "yellow", "orange", "black"]
+let defaultPegChoices = ["red", "blue", "green", "yellow"]
+// ["brown", "yellow", "orange", "black"]
 
 let supportedColors: [Peg: Color] = [
-    "red": .red, "blue": .blue, "green": .green, "yellow": .yellow,
-    "brown": .brown, "orange": .orange, "pink": .orange,
-    "purple": .purple, "black": .black,
+    "red": .red, "blue": .blue, "green": .green,
+    "yellow": .yellow, "brown": .brown, "orange": .orange,
+        // "pink": .orange, "purple": .purple, "black": .black,
 ]
 
-let supportedEmojis: [String: [Peg]] = [
-    "faces": ["😀", "🤪", "🥳", "😨"],
-    "vehicles": ["🚗", "🚲", "🛩", "⛵"],
+let supportedEmojis: [String: [String]] = [
+    "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
+    "vehicles": ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"],
+    "nature": ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"],
 ]
 
 func getBackground(for peg: Peg) -> Color {
@@ -102,24 +104,30 @@ struct CodeBreakerView: View {
 
     var restartGameButton: some View {
         Button("Restart Game") {
+            // choose a random peg count in allowed range
             let randomPegCount = Int.random(in: minPegs...maxPegs)
+            // array that holds the pegs to pick from
+            var pegsToChooseFrom: [Peg]
+
+            switch self.theme {
+            case .emojis(let currentTheme):
+                pegsToChooseFrom = supportedEmojis[currentTheme]!
+            case .colors:
+                pegsToChooseFrom = Array(supportedColors.keys)
+            }
+
+            // array that will hold the selected pegs
             var randomPegs: [Peg] = []
 
-            repeat {
-                let randomPeg: Peg
-
-                switch self.theme {
-                case .emojis:
-                    // randomPeg = supportedEmojis.randomElement()!
-                    randomPeg = supportedColors.randomElement()!.key
-                case .colors:
-                    randomPeg = supportedColors.randomElement()!.key
-                }
-
-                if !randomPegs.contains(randomPeg) {
-                    randomPegs.append(randomPeg)
-                }
-            } while randomPegs.count != randomPegCount
+            // populate random pegs
+            for _ in 0..<randomPegCount {
+                // mix pegs
+                pegsToChooseFrom = pegsToChooseFrom.shuffled()
+                // take a random
+                let randomPeg = pegsToChooseFrom.popLast()!
+                // append to array
+                randomPegs.append(randomPeg)
+            }
 
             withAnimation {
                 game = CodeBreaker(pegChoices: randomPegs)
