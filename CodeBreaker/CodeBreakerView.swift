@@ -9,30 +9,33 @@ import SwiftUI
 
 // peg themes available to use
 enum Theme {
+    // all supported colors
+    static let supportedColors: [Peg: Color] = [
+        "red": .red, "blue": .blue, "green": .green, "yellow": .yellow,
+        "brown": .brown, "orange": .orange,
+    ]
+
+    // all supported emojis
+    static let supportedEmojis: [String: [String]] = [
+        "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
+        "vehicles": ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"],
+        "nature": ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"],
+    ]
+
+    // all supported themes
+    static var allPossibleThemes = ["colors"] + Array(supportedEmojis.keys)
+
+    // a default set of pegs to use as fallback
+    static let defaultPegChoices = ["red", "blue", "green", "yellow"]
+
     case emojis(theme: String)
     case colors
 }
 
-// a default set of earth tones to use as fallback
-let defaultPegChoices = ["red", "blue", "green", "yellow"]
-// ["brown", "yellow", "orange", "black"]
-
-let supportedColors: [Peg: Color] = [
-    "red": .red, "blue": .blue, "green": .green,
-    "yellow": .yellow, "brown": .brown, "orange": .orange,
-        // "pink": .orange, "purple": .purple, "black": .black,
-]
-
-let supportedEmojis: [String: [String]] = [
-    "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
-    "vehicles": ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"],
-    "nature": ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"],
-]
-
 func getBackground(for peg: Peg) -> Color {
     // case color
-    if supportedColors.keys.contains(peg) {
-        let color = supportedColors.first { $0.key == peg }!.value
+    if Theme.supportedColors.keys.contains(peg) {
+        let color = Theme.supportedColors.first { $0.key == peg }!.value
         return color
     }
 
@@ -42,7 +45,7 @@ func getBackground(for peg: Peg) -> Color {
 
 func getForeground(for peg: Peg) -> Text {
     // case emoji
-    if peg != Code.missing && !supportedColors.keys.contains(peg) {
+    if peg != Code.missing && !Theme.supportedColors.keys.contains(peg) {
         return Text(peg)
     }
 
@@ -55,26 +58,27 @@ struct CodeBreakerView: View {
     @State var game: CodeBreaker
     @State var theme: Theme
 
-    init(pegChoices: [Peg] = defaultPegChoices) {
+    init(pegChoices: [Peg] = Theme.defaultPegChoices) {
         var pegChoicesToUse = pegChoices
 
         // check if we're passed either colors or emojis
         let areAllPegChoicesColors: Bool = pegChoices.allSatisfy { pegChoice in
-            supportedColors.keys.contains { $0 == pegChoice }
+            Theme.supportedColors.keys.contains { $0 == pegChoice }
         }
 
         if areAllPegChoicesColors {
             self.theme = .colors
         } else {
             // check there's a theme that contains all these pegs
-            let themeSet: [String: [Peg]] = supportedEmojis.filter { themeSet in
+            let themeSet: [String: [Peg]] = Theme.supportedEmojis.filter {
+                themeSet in
                 themeSet.value.contains(pegChoices)
             }
 
             if themeSet.isEmpty {
                 // use a default when mixed peg choices of themes are passed
                 self.theme = .colors
-                pegChoicesToUse = defaultPegChoices
+                pegChoicesToUse = Theme.defaultPegChoices
             } else {
                 // emojis (strings)
                 self.theme = .emojis(theme: themeSet.first!.key)
@@ -109,11 +113,20 @@ struct CodeBreakerView: View {
             // array that holds the pegs to pick from
             var pegsToChooseFrom: [Peg]
 
+            // pick a random theme
+            if let randomTheme = Theme.allPossibleThemes.randomElement() {
+                if randomTheme == "colors" {
+                    self.theme = .colors
+                } else {
+                    self.theme = .emojis(theme: randomTheme)
+                }
+            }
+
             switch self.theme {
             case .emojis(let currentTheme):
-                pegsToChooseFrom = supportedEmojis[currentTheme]!
+                pegsToChooseFrom = Theme.supportedEmojis[currentTheme]!
             case .colors:
-                pegsToChooseFrom = Array(supportedColors.keys)
+                pegsToChooseFrom = Array(Theme.supportedColors.keys)
             }
 
             // array that will hold the selected pegs
@@ -206,7 +219,7 @@ struct CodeBreakerView: View {
 
 #Preview {
     CodeBreakerView(pegChoices: ["red", "blue", "green", "yellow"])
-    CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"])
+    // CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"])
     // CodeBreakerView(pegChoices: ["🚗", "🚲", "🛩", "⛵"])
     // CodeBreakerView()
 }
