@@ -8,24 +8,17 @@
 import SwiftUI
 
 extension Color {
-    // all supported colors
-    static let allColorsNames: [String] = [
-        "red",
-        "blue",
-        "green",
-        "yellow",
-        "brown",
-        "orange",
-        "pink",
-        "purple",
-        "indigo",
-        "teal",
-        "mint",
-        "cyan",
-        "gray",
-        "grey",
+    static let allBuiltInColors: [Color] = [
+        .red, .blue, .green, .yellow, .orange, .brown,
+        .pink, .purple, .indigo, .teal, .mint, .cyan, .gray,
     ]
 
+    static var allColorNames: [String] {
+        return allBuiltInColors.compactMap { $0.name }
+    }
+
+    // failable initializer for Color which takes a color name and translates
+    // it into one of Color's built-in static colors
     init?(name: String) {
         switch name.lowercased().trimmingCharacters(in: .whitespaces) {
         case "red": self = .red
@@ -43,6 +36,27 @@ extension Color {
         case "gray", "grey": self = .gray
         default:
             return nil  // This makes it failable
+        }
+    }
+
+    // Optional var called name which does the inverse
+    var name: String? {
+        switch self {
+        case .red: return "red"
+        case .blue: return "blue"
+        case .green: return "green"
+        case .yellow: return "yellow"
+        case .orange: return "orange"
+        case .brown: return "brown"
+        case .pink: return "pink"
+        case .purple: return "purple"
+        case .indigo: return "indigo"
+        case .teal: return "teal"
+        case .mint: return "mint"
+        case .cyan: return "cyan"
+        case .gray: return "gray"
+        default:
+            return nil  // Returns nil for custom RGB or hex colors
         }
     }
 }
@@ -154,7 +168,7 @@ struct CodeBreakerView: View {
             case .emojis(let currentTheme):
                 pegsToChooseFrom = Theme.supportedEmojis[currentTheme]!
             case .colors:
-                pegsToChooseFrom = Color.allColorsNames
+                pegsToChooseFrom = Color.allColorNames
             }
 
             // array that will hold the selected pegs
