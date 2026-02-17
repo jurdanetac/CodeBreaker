@@ -145,7 +145,39 @@ struct CodeBreakerView: View {
                 }
             }
             restartGameButton
+            themePickerButtons
         }.padding()
+    }
+
+    var themePickerButtons: some View {
+        HStack {
+            Spacer()
+            Button(
+                action: {},
+                label: {
+                    VStack {
+                        Image(systemName: "paintpalette")
+                            .font(.title)
+                        Text("Colors")
+                            .font(.body.bold())
+                    }
+                }
+            )
+            Spacer()
+            Button(
+                action: {},
+                label: {
+                    VStack {
+                        Image(systemName: "face.smiling")
+                            .font(.title)
+                        Text("Emojis")
+                            .font(.body.bold())
+                    }
+                }
+            )
+            Spacer()
+        }
+        .padding(.top, 20.0)
     }
 
     var restartGameButton: some View {
@@ -188,6 +220,7 @@ struct CodeBreakerView: View {
                 game = CodeBreaker(pegChoices: randomPegs)
             }
         }
+        .font(.body.bold())
     }
 
     var guessButton: some View {
