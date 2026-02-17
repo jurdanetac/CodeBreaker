@@ -64,20 +64,44 @@ extension Color {
 // peg themes available to use
 enum Theme {
     // all supported emojis
-    static let supportedEmojis: [String: [String]] = [
+    static let emojiThemes: [String: [String]] = [
         "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
         "vehicles": ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"],
         "nature": ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"],
     ]
-
-    // all supported themes
-    static var allPossibleThemes = ["colors"] + Array(supportedEmojis.keys)
+    // all supported themes in [name: label] form
+    static let allPossibleThemes = [
+        //        "colors": Theme.colors,
+        "colors": "paintpalette",
+        //        "faces": Theme.emojis(theme: "faces"),
+        "faces": "face.smiling",
+        //        "vehicles": Theme.emojis(theme: "vehicles"),
+        "vehicles": "car",
+        //        "nature": Theme.emojis(theme: "nature"),
+        "nature": "tree",
+    ]
 
     // a default set of pegs to use as fallback
     static let defaultPegChoices = ["red", "blue", "green", "yellow"]
 
     case emojis(theme: String)
     case colors
+
+    // for theme picker
+    /*
+    var icon: String {
+        switch self {
+        case .emojis(let theme):
+            switch theme {
+            case "faces": return "face.smiling"
+            case "vehicles": return "car"
+            case "nature": return "tree"
+            default: return ""  // ?
+            }
+        case .colors: return "paintpalette"
+        }
+    }
+     */
 }
 
 func getBackground(for peg: Peg) -> Color {
@@ -112,7 +136,7 @@ struct CodeBreakerView: View {
             self.theme = .colors
         } else {
             // check there's a theme that contains all these pegs
-            let themeSet: [String: [Peg]] = Theme.supportedEmojis.filter {
+            let themeSet: [String: [Peg]] = Theme.emojiThemes.filter {
                 themeSet in
                 themeSet.value.contains(pegChoices)
             }
@@ -152,6 +176,7 @@ struct CodeBreakerView: View {
     var themePickerButtons: some View {
         HStack {
             Spacer()
+            // colors theme
             Button(
                 action: {},
                 label: {
@@ -164,17 +189,33 @@ struct CodeBreakerView: View {
                 }
             )
             Spacer()
-            Button(
-                action: {},
-                label: {
-                    VStack {
-                        Image(systemName: "face.smiling")
+            // emojis themes menu
+            Menu {
+                // These are the actions that appear when the menu opens
+                ForEach(Array(Theme.allPossibleThemes.keys), id: \.self) {
+                    themeName in
+                    Button(
+                        action: {
+                        },
+                        label: {
+                            Image(
+                                systemName: Theme.allPossibleThemes[themeName]!
+                            )
                             .font(.title)
-                        Text("Emojis")
-                            .font(.body.bold())
-                    }
+                            Text("\(themeName.capitalized)")
+                                .font(.body.bold())
+                        }
+                    )
                 }
-            )
+            } label: {
+                // This is the "Button" the user actually sees on screen
+                VStack {
+                    Image(systemName: "face.smiling")
+                        .font(.title)
+                    Text("Emojis")
+                        .font(.body.bold())
+                }
+            }
             Spacer()
         }
         .padding(.top, 20.0)
@@ -188,7 +229,7 @@ struct CodeBreakerView: View {
             var pegsToChooseFrom: [Peg]
 
             // pick a random theme
-            if let randomTheme = Theme.allPossibleThemes.randomElement() {
+            if let randomTheme = Theme.allPossibleThemes.keys.randomElement() {
                 if randomTheme == "colors" {
                     self.theme = .colors
                 } else {
@@ -198,7 +239,7 @@ struct CodeBreakerView: View {
 
             switch self.theme {
             case .emojis(let currentTheme):
-                pegsToChooseFrom = Theme.supportedEmojis[currentTheme]!
+                pegsToChooseFrom = Theme.emojiThemes[currentTheme]!
             case .colors:
                 pegsToChooseFrom = Color.allColorNames
             }
