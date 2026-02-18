@@ -9,9 +9,6 @@ import SwiftUI
 
 typealias Peg = String
 
-let minPegs = 3
-let maxPegs = 6
-
 enum Guess {
     case successful
     case duplicated
@@ -19,17 +16,30 @@ enum Guess {
 }
 
 struct CodeBreaker {
+    static let minPegs = 3
+    static let maxPegs = 6
+
     var masterCode: Code
     var guess: Code
     var attempts: [Code] = []
     var pegChoices: [Peg]
 
-    init(pegChoices: [Peg] = ["red", "green", "blue", "yellow"]) {
-        masterCode = Code(kind: .master, pegCount: pegChoices.count)
-        guess = Code(kind: .guess, pegCount: pegChoices.count)
+    init(from pegChoices: [Peg]) {
+        // choose a random peg count in allowed range
+        let randomPegCount = Int.random(
+            in: CodeBreaker.minPegs...CodeBreaker.maxPegs
+        )
 
-        self.pegChoices = pegChoices
-        masterCode.randomize(from: pegChoices)
+        // random `randomPegCount` choosed from the provided choices
+        let randomPegs: [Peg] = Array(
+            pegChoices.shuffled().prefix(randomPegCount)
+        )
+
+        masterCode = Code(kind: .master, pegCount: randomPegCount)
+        guess = Code(kind: .guess, pegCount: randomPegCount)
+
+        self.pegChoices = randomPegs
+        masterCode.randomize(from: randomPegs)
         // print(masterCode)
     }
 

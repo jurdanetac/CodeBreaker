@@ -61,47 +61,38 @@ extension Color {
     }
 }
 
-// peg themes available to use
-enum Theme {
-    // all supported emojis
-    static let emojiThemes: [String: [String]] = [
-        "faces": ["😀", "🤪", "🥳", "😨", "😎", "🤔"],
-        "vehicles": ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"],
-        "nature": ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"],
-    ]
-    // all supported themes in [name: label] form
-    static let allPossibleThemes = [
-        //        "colors": Theme.colors,
-        "colors": "paintpalette",
-        //        "faces": Theme.emojis(theme: "faces"),
-        "faces": "face.smiling",
-        //        "vehicles": Theme.emojis(theme: "vehicles"),
-        "vehicles": "car",
-        //        "nature": Theme.emojis(theme: "nature"),
-        "nature": "tree",
-    ]
-
-    // a default set of pegs to use as fallback
-    static let defaultPegChoices = ["red", "blue", "green", "yellow"]
-
-    case emojis(theme: String)
+enum Theme: CaseIterable {
     case colors
+    case faces
+    case vehicles
+    case nature
 
-    // for theme picker
-    /*
-    var icon: String {
+    var name: String {
         switch self {
-        case .emojis(let theme):
-            switch theme {
-            case "faces": return "face.smiling"
-            case "vehicles": return "car"
-            case "nature": return "tree"
-            default: return ""  // ?
-            }
-        case .colors: return "paintpalette"
+        case .colors: return "colors"
+        case .faces: return "faces"
+        case .vehicles: return "vehicles"
+        case .nature: return "nature"
         }
     }
-     */
+
+    var icon: String {
+        switch self {
+        case .colors: return "paintpalette"
+        case .faces: return "face.smiling"
+        case .vehicles: return "car"
+        case .nature: return "tree"
+        }
+    }
+
+    var pegs: [Peg] {
+        switch self {
+        case .colors: return Color.allColorNames
+        case .faces: return ["😀", "🤪", "🥳", "😨", "😎", "🤔"]
+        case .vehicles: return ["🚗", "🚲", "🛩", "⛵", "🚀", "🚁"]
+        case .nature: return ["🌲", "🌻", "🌊", "🌋", "🍄", "🌙"]
+        }
+    }
 }
 
 func getBackground(for peg: Peg) -> Color {
@@ -120,48 +111,20 @@ func getForeground(for peg: Peg) -> Text {
 }
 
 struct CodeBreakerView: View {
-    let pegChoices: [Peg]
     @State var game: CodeBreaker
-    @State var theme: Theme
 
-    init(pegChoices: [Peg] = Theme.defaultPegChoices) {
-        var pegChoicesToUse = pegChoices
-
-        // check if we're passed either colors or emojis
-        let areAllPegChoicesColors: Bool = pegChoices.allSatisfy { pegChoice in
-            Color(name: pegChoice) != nil
-        }
-
-        if areAllPegChoicesColors {
-            self.theme = .colors
-        } else {
-            // check there's a theme that contains all these pegs
-            let themeSet: [String: [Peg]] = Theme.emojiThemes.filter {
-                themeSet in
-                themeSet.value.contains(pegChoices)
-            }
-
-            if themeSet.isEmpty {
-                // use a default when mixed peg choices of themes are passed
-                self.theme = .colors
-                pegChoicesToUse = Theme.defaultPegChoices
-            } else {
-                // emojis (strings)
-                self.theme = .emojis(theme: themeSet.first!.key)
-            }
-        }
-
-        self.pegChoices = pegChoicesToUse
-        game = CodeBreaker(pegChoices: pegChoicesToUse)
+    init(using theme: Theme = .colors) {
+        self.game = CodeBreaker(from: theme.pegs)
     }
 
+    // Error alert popup
     @State private var showAlert = false
     @State private var errorAlertTitle = "Error"
     @State private var errorAlertMessage = "Error attempting guess"
 
     var body: some View {
         VStack {
-            view(for: game.masterCode)
+            // view(for: game.masterCode)
             ScrollView {
                 view(for: game.guess)
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
@@ -192,17 +155,17 @@ struct CodeBreakerView: View {
             // emojis themes menu
             Menu {
                 // These are the actions that appear when the menu opens
-                ForEach(Array(Theme.allPossibleThemes.keys), id: \.self) {
-                    themeName in
+                ForEach(Theme.allCases, id: \.self) { theme in
                     Button(
                         action: {
+                            print("...")
                         },
                         label: {
                             Image(
-                                systemName: Theme.allPossibleThemes[themeName]!
+                                systemName: theme.icon
                             )
                             .font(.title)
-                            Text("\(themeName.capitalized)")
+                            Text("\(theme.name.capitalized)")
                                 .font(.body.bold())
                         }
                     )
@@ -223,42 +186,11 @@ struct CodeBreakerView: View {
 
     var restartGameButton: some View {
         Button("Restart Game") {
-            // choose a random peg count in allowed range
-            let randomPegCount = Int.random(in: minPegs...maxPegs)
-            // array that holds the pegs to pick from
-            var pegsToChooseFrom: [Peg]
-
-            // pick a random theme
-            if let randomTheme = Theme.allPossibleThemes.keys.randomElement() {
-                if randomTheme == "colors" {
-                    self.theme = .colors
-                } else {
-                    self.theme = .emojis(theme: randomTheme)
-                }
-            }
-
-            switch self.theme {
-            case .emojis(let currentTheme):
-                pegsToChooseFrom = Theme.emojiThemes[currentTheme]!
-            case .colors:
-                pegsToChooseFrom = Color.allColorNames
-            }
-
-            // array that will hold the selected pegs
-            var randomPegs: [Peg] = []
-
-            // populate random pegs
-            for _ in 0..<randomPegCount {
-                // mix pegs
-                pegsToChooseFrom = pegsToChooseFrom.shuffled()
-                // take a random
-                let randomPeg = pegsToChooseFrom.popLast()!
-                // append to array
-                randomPegs.append(randomPeg)
-            }
+            // pick a random theme and then start a new game with that theme
+            let randomTheme = Theme.allCases.randomElement()!
 
             withAnimation {
-                game = CodeBreaker(pegChoices: randomPegs)
+                game = CodeBreaker(from: randomTheme.pegs)
             }
         }
         .font(.body.bold())
@@ -334,8 +266,6 @@ struct CodeBreakerView: View {
 }
 
 #Preview {
-    CodeBreakerView(pegChoices: ["red", "blue", "green", "yellow"])
-    // CodeBreakerView(pegChoices: ["😀", "🤪", "🥳", "😨"])
-    // CodeBreakerView(pegChoices: ["🚗", "🚲", "🛩", "⛵"])
-    // CodeBreakerView()
+    CodeBreakerView()
+    // CodeBreakerView(using: .faces)
 }
