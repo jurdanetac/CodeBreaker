@@ -131,69 +131,37 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
-            restartGameButton
-            themePickerButtons
+            restartGameButton.padding(.top)
         }.padding()
     }
 
-    var themePickerButtons: some View {
-        HStack {
-            Spacer()
-            // colors theme
-            Button(
-                action: {},
-                label: {
-                    VStack {
-                        Image(systemName: "paintpalette")
-                            .font(.title)
-                        Text("Colors")
-                            .font(.body.bold())
-                    }
-                }
-            )
-            Spacer()
-            // emojis themes menu
-            Menu {
-                // These are the actions that appear when the menu opens
+    var restartGameButton: some View {
+        Menu(
+            content: {
                 ForEach(Theme.allCases, id: \.self) { theme in
                     Button(
                         action: {
-                            print("...")
+                            withAnimation {
+                                game = CodeBreaker(from: theme.pegs)
+                            }
                         },
                         label: {
-                            Image(
-                                systemName: theme.icon
-                            )
-                            .font(.title)
-                            Text("\(theme.name.capitalized)")
-                                .font(.body.bold())
+                            Image(systemName: theme.icon)
+                            Text(theme.name.capitalized)
                         }
                     )
                 }
-            } label: {
-                // This is the "Button" the user actually sees on screen
+            },
+            label: {
                 VStack {
-                    Image(systemName: "face.smiling")
+                    Image(systemName: "restart.circle")
                         .font(.title)
-                    Text("Emojis")
-                        .font(.body.bold())
+                    Text("Restart Game")
+                        .font(.system(size: 20).bold())
+                        .minimumScaleFactor(0.1)
                 }
             }
-            Spacer()
-        }
-        .padding(.top, 20.0)
-    }
-
-    var restartGameButton: some View {
-        Button("Restart Game") {
-            // pick a random theme and then start a new game with that theme
-            let randomTheme = Theme.allCases.randomElement()!
-
-            withAnimation {
-                game = CodeBreaker(from: randomTheme.pegs)
-            }
-        }
-        .font(.body.bold())
+        )
     }
 
     var guessButton: some View {
