@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// let circleRadius = CGFloat(45)
-
 enum Match: CaseIterable {
     case exact
     case inexact
@@ -19,43 +17,36 @@ struct MatchMarkers: View {
     let matches: [Match]
 
     var body: some View {
-        // if no matches just a placeholder that fills space
-        if matches.count == 0 {
-            ClearCircle()
-        } else {
-            let numberOfColumns: Int =
-                ({
-                    return Int((Double(matches.count) / 2.0).rounded())
-                })()
+        let numberOfColumns: Int = Int((Double(matches.count) / 2.0).rounded())
 
-            VStack {
-                HStack {
-                    ForEach(0..<numberOfColumns, id: \.self) { pegIndex in
+        VStack {
+            HStack {
+                ForEach(0..<numberOfColumns, id: \.self) { pegIndex in
+                    matchMarker(peg: pegIndex)
+                }
+            }
+            HStack {
+                if numberOfColumns * 2 > matches.count {
+                    ForEach(
+                        numberOfColumns..<numberOfColumns * 2 - 1,
+                        id: \.self
+                    ) {
+                        pegIndex in
                         matchMarker(peg: pegIndex)
                     }
-                }
-                HStack {
-                    if numberOfColumns * 2 > matches.count {
-                        ForEach(
-                            numberOfColumns..<numberOfColumns * 2 - 1,
-                            id: \.self
-                        ) {
-                            pegIndex in
-                            matchMarker(peg: pegIndex)
-                        }
-                        ClearCircle()
-                    } else {
-                        ForEach(
-                            numberOfColumns..<numberOfColumns * 2,
-                            id: \.self
-                        ) {
-                            pegIndex in
-                            matchMarker(peg: pegIndex)
-                        }
+                    ClearCircle()
+                } else {
+                    ForEach(
+                        numberOfColumns..<numberOfColumns * 2,
+                        id: \.self
+                    ) {
+                        pegIndex in
+                        matchMarker(peg: pegIndex)
                     }
                 }
             }
         }
+        // }
     }
 
     func matchMarker(peg: Int) -> some View {

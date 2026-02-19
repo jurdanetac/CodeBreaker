@@ -224,11 +224,19 @@ struct CodeBreakerView: View {
                         }
                     }
             }
-            MatchMarkers(matches: code.matches).overlay {
-                if code.kind == .guess {
-                    guessButton
+
+            Rectangle()
+                .foregroundStyle(.clear)
+                .aspectRatio(1, contentMode: .fit)
+                .overlay {
+                    if let matches = code.matches {
+                        MatchMarkers(matches: matches)
+                    } else {
+                        if code.kind == .guess {
+                            guessButton
+                        }
+                    }
                 }
-            }
         }
     }
 }
