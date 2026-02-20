@@ -102,7 +102,7 @@ func getBackground(for peg: Peg) -> Color {
 
 func getForeground(for peg: Peg) -> Text {
     // case emoji
-    if peg != Code.missing && (Color(name: peg) == nil) {
+    if peg != Peg.missing && (Color(name: peg) == nil) {
         return Text(peg)
     }
 
@@ -196,7 +196,7 @@ struct CodeBreakerView: View {
 
                 RoundedRectangle(cornerRadius: 10)
                     .overlay {
-                        if peg == Code.missing {
+                        if peg == Peg.missing {
                             RoundedRectangle(cornerRadius: 10)
                                 .strokeBorder(Color.gray)
                         }
