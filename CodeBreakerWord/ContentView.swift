@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    // MARK: Data In
+    @Environment(\.words) var words
+
     var body: some View {
         VStack {
             Image(systemName: "globe")

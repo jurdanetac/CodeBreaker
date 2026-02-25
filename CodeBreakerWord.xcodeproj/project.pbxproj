@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		697215862F4F396900D48188 /* common.words in Resources */ = {isa = PBXBuildFile; fileRef = 697215852F4F396900D48188 /* common.words */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		6972156F2F4F327200D48188 /* CodeBreakerWord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeBreakerWord.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		697215852F4F396900D48188 /* common.words */ = {isa = PBXFileReference; lastKnownFileType = text; path = common.words; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		697215662F4F327200D48188 = {
 			isa = PBXGroup;
 			children = (
+				697215872F4F398200D48188 /* Data */,
 				697215712F4F327200D48188 /* CodeBreakerWord */,
 				697215702F4F327200D48188 /* Products */,
 			);
@@ -43,6 +49,14 @@
 				6972156F2F4F327200D48188 /* CodeBreakerWord.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		697215872F4F398200D48188 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				697215852F4F396900D48188 /* common.words */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -109,6 +123,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				697215862F4F396900D48188 /* common.words in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
