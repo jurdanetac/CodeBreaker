@@ -28,12 +28,21 @@ struct CodeBreakerWordView: View {
                     view(for: game.attempts[index])
                 }
             }
-            PegChooser() { peg in
+            PegChooser { peg in
                 game.setGuessPeg(peg, at: selection)
                 selection = (selection + 1) % game.masterCode.pegs.count
             }
         }
         .padding()
+        .onChange(of: words.count, initial: true) {
+            if game.attempts.count == 0 {  // don’t disrupt a game in progress
+                if words.count == 0 {  // no words (yet)
+                    game.masterCode.word = "AWAIT"
+                } else {
+                    game.masterCode.word = words.random(length: 5) ?? "ERROR"
+                }
+            }
+        }
     }
 
     var guessButton: some View {

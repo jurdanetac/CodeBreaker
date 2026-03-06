@@ -14,15 +14,7 @@ enum Match {
 }
 
 struct Code {
-    var kind: Kind
-    var pegs: [Peg] = Array(repeating: Code.missingPeg, count: 4)
-
     static let missingPeg: Peg = ""
-
-    var word: String {
-        get { pegs.joined() }
-        set { pegs = newValue.map { String($0) } }
-    }
 
     enum Kind: Equatable {
         case master(isHidden: Bool)
@@ -31,11 +23,13 @@ struct Code {
         case unknown
     }
 
-//    mutating func randomize(from pegChoices: [Peg]) {
-//        for index in pegs.indices {
-//            pegs[index] = pegChoices.randomElement() ?? Code.missingPeg
-//        }
-//    }
+    var kind: Kind
+    var pegs: [Peg] = Array(repeating: Code.missingPeg, count: 4)
+
+    var word: String {
+        get { pegs.joined() }
+        set { pegs = newValue.map { String($0) } }
+    }
 
     var isHidden: Bool {
         switch kind {
@@ -44,15 +38,25 @@ struct Code {
         }
     }
 
-    mutating func reset() {
-        pegs = Array(repeating: Code.missingPeg, count: 4)
-    }
-
     var matches: [Match]? {
         switch kind {
         case .attempt(let matches): return matches
         default: return nil
         }
+    }
+
+    //    mutating func randomize(from pegChoices: [Peg]) {
+    //        for index in pegs.indices {
+    //            pegs[index] = pegChoices.randomElement() ?? Code.missingPeg
+    //        }
+    //    }
+
+    mutating func setPegsFromWord(_ word: String) {
+        self.pegs = Array(arrayLiteral: word)
+    }
+
+    mutating func reset() {
+        pegs = Array(repeating: Code.missingPeg, count: 4)
     }
 
     func match(against otherCode: Code) -> [Match] {

@@ -10,16 +10,19 @@ import Foundation
 typealias Peg = String
 
 struct CodeBreaker {
-    var masterCode: Code = Code(kind: .master(isHidden: true))
+    static let minPegs = 3
+    static let maxPegs = 6
+
+    static func generateRandomNumberOfPegs() -> Int {
+        Int.random(in: CodeBreaker.minPegs...CodeBreaker.maxPegs)
+    }
+
+    let pegChoices: [Peg] = "QWERTYUIOPASDFGHJKLZXCVBNM".map { String($0) }
+    
+    var masterCode: Code = Code(kind: .master(isHidden: false))
     var guess: Code = Code(kind: .guess)
     var attempts: [Code] = []
-    let pegChoices: [Peg] = "QWERTYUIOPASDFGHJKLZXCVBNM".map { String($0) }
-
-    //    init(pegChoices: [Peg]) {
-    //        self.pegChoices = "QWERTYUIOPASDFGHJKLZXCVBNM".map { String($0) }
-    //        masterCode.randomize(from: pegChoices)
-    //    }
-
+    
     var isOver: Bool {
         attempts.last?.pegs == masterCode.pegs
     }
