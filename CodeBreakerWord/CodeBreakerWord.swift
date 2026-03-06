@@ -1,6 +1,6 @@
 //
-//  CodeBreaker.swift
-//  CodeBreaker
+//  CodeBreakerWord.swift
+//  CodeBreakerWord
 //
 //  Created by CS193p Instructor on 4/9/25.
 //
@@ -9,12 +9,12 @@ import Foundation
 
 typealias Peg = String
 
-struct CodeBreaker {
+struct CodeBreakerWord {
     static let minPegs = 3
     static let maxPegs = 6
 
     static func generateRandomNumberOfPegs() -> Int {
-        Int.random(in: CodeBreaker.minPegs...CodeBreaker.maxPegs)
+        Int.random(in: CodeBreakerWord.minPegs...CodeBreakerWord.maxPegs)
     }
 
     let pegChoices: [Peg] = "QWERTYUIOPASDFGHJKLZXCVBNM".map { String($0) }

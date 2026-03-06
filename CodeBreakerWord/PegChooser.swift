@@ -1,6 +1,6 @@
 //
 //  PegChooser.swift
-//  CodeBreaker
+//  CodeBreakerWord
 //
 //  Created by CS193p Instructor on 4/16/25.
 //

@@ -1,6 +1,6 @@
 //
 //  CodeBreakerView.swift
-//  CodeBreaker
+//  CodeBreakerWord
 //
 //  Created by CS193p Instructor on 3/31/25.
 //
