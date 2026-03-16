@@ -12,7 +12,7 @@ struct CodeBreakerWordView: View {
     @Environment(\.words) var words
 
     // MARK: Data Owned by Me
-    @State private var game = CodeBreaker()
+    @State private var game = CodeBreakerWord()
     @State private var selection: Int = 0
 
     // MARK: - Body
@@ -36,10 +36,10 @@ struct CodeBreakerWordView: View {
         .padding()
         .onChange(of: words.count, initial: true) {
             if game.attempts.count == 0 {  // don’t disrupt a game in progress
-                if words.count == 0 {  // no words (yet)
-                    game.masterCode.word = "AWAIT"
-                } else {
-                    game.masterCode.word = words.random(length: 5) ?? "ERROR"
+                if !(words.count == 0) {  // no words (yet)
+                    game = CodeBreakerWord(
+                        word: words.random(length: 5) ?? "ERROR"
+                    )
                 }
             }
         }

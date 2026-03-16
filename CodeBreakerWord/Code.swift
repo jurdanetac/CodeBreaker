@@ -24,7 +24,17 @@ struct Code {
     }
 
     var kind: Kind
-    var pegs: [Peg] = Array(repeating: Code.missingPeg, count: 4)
+    var pegs: [Peg]
+
+    init(kind: Kind, pegs: [Peg]) {
+        self.kind = kind
+        self.pegs = pegs
+
+        // clear pegs on guess code creation since we pass the game masterCode
+        if self.kind == .guess {
+            self.reset()
+        }
+    }
 
     var word: String {
         get { pegs.joined() }
@@ -45,18 +55,8 @@ struct Code {
         }
     }
 
-    //    mutating func randomize(from pegChoices: [Peg]) {
-    //        for index in pegs.indices {
-    //            pegs[index] = pegChoices.randomElement() ?? Code.missingPeg
-    //        }
-    //    }
-
-    mutating func setPegsFromWord(_ word: String) {
-        self.pegs = Array(arrayLiteral: word)
-    }
-
     mutating func reset() {
-        pegs = Array(repeating: Code.missingPeg, count: 4)
+        pegs = Array(repeating: Code.missingPeg, count: self.pegs.count)
     }
 
     func match(against otherCode: Code) -> [Match] {

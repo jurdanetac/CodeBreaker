@@ -13,16 +13,22 @@ struct CodeBreakerWord {
     static let minPegs = 3
     static let maxPegs = 6
 
-    static func generateRandomNumberOfPegs() -> Int {
-        Int.random(in: CodeBreakerWord.minPegs...CodeBreakerWord.maxPegs)
-    }
+    //    static func generateRandomNumberOfPegs() -> Int {
+    //        Int.random(in: CodeBreakerWord.minPegs...CodeBreakerWord.maxPegs)
+    //    }
 
     let pegChoices: [Peg] = "QWERTYUIOPASDFGHJKLZXCVBNM".map { String($0) }
-    
-    var masterCode: Code = Code(kind: .master(isHidden: false))
-    var guess: Code = Code(kind: .guess)
+
+    init(word: String = "AWAIT") {
+        let wordArray = word.map { String($0) }
+        masterCode = Code(kind: .master(isHidden: false), pegs: wordArray)
+        guess = Code(kind: .guess, pegs: wordArray)
+    }
+
+    var masterCode: Code
+    var guess: Code
     var attempts: [Code] = []
-    
+
     var isOver: Bool {
         attempts.last?.pegs == masterCode.pegs
     }
@@ -41,14 +47,4 @@ struct CodeBreakerWord {
         guard guess.pegs.indices.contains(index) else { return }
         guess.pegs[index] = peg
     }
-
-    //    mutating func changeGuessPeg(at index: Int) {
-    //        let existingPeg = guess.pegs[index]
-    //        if let indexOfExistingPegInPegChoices = pegChoices.firstIndex(of: existingPeg) {
-    //            let newPeg = pegChoices[(indexOfExistingPegInPegChoices + 1) % pegChoices.count]
-    //            guess.pegs[index] = newPeg
-    //        } else {
-    //            guess.pegs[index] = pegChoices.first ?? Code.missingPeg
-    //        }
-    //    }
 }
