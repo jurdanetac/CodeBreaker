@@ -14,6 +14,8 @@ struct CodeBreakerWordView: View {
     // MARK: Data Owned by Me
     @State private var game = CodeBreakerWord()
     @State private var selection: Int = 0
+    @State private var showAlert = false
+    @State private var details = ""
 
     // MARK: - Body
 
@@ -43,11 +45,28 @@ struct CodeBreakerWordView: View {
                 }
             }
         }
+        .alert(
+            "Alert",
+            isPresented: $showAlert,
+            actions: {},
+            message: {
+                Text(details)
+            }
+        )
     }
 
     var guessButton: some View {
         Button("Guess") {
             withAnimation {
+                // incomplete
+                if game.guess.pegs.contains(where: \.isEmpty) {
+                    showAlert = true
+                    details = "You must pick all letters"
+                    return
+                }
+                // non existent word case
+                // already guessed case
+
                 game.attemptGuess()
                 selection = 0
             }
