@@ -16,6 +16,7 @@ struct CodeBreakerWordView: View {
     @State private var selection: Int = 0
     @State private var showAlert = false
     @State private var details = ""
+    @State private var checker = UITextChecker()
 
     // MARK: - Body
 
@@ -58,14 +59,25 @@ struct CodeBreakerWordView: View {
     var guessButton: some View {
         Button("Guess") {
             withAnimation {
-                // incomplete
+                // error handling
                 if game.guess.pegs.contains(where: \.isEmpty) {
+                    // incomplete guess
                     showAlert = true
                     details = "You must pick all letters"
                     return
+                } else if game.attempts.contains(where: {
+                    // already guessed
+                    game.guess.pegs == $0.pegs
+                }) {
+                    showAlert = true
+                    details = "Try another word!"
+                    return
+                } else if !checker.isAWord(game.guess.word.lowercased()) {
+                    // non existent word
+                    showAlert = true
+                    details = "Not a valid English word!"
+                    return
                 }
-                // non existent word case
-                // already guessed case
 
                 game.attemptGuess()
                 selection = 0
